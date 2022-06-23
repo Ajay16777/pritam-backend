@@ -6,15 +6,11 @@ function verifyToken(req, res, next) {
   var authheader = req.headers["authorization"];
   if (!authheader)
     return res.status(403).send({ auth: false, message: "No token provided." });
-    //between the "Bearer " and the ","
+  //between the "Bearer " and the ","
   var token = authheader;
 
-  
-
-  
   if (!token)
     return res.status(403).send({ auth: false, message: "No token provided." });
-    
 
   jwt.verify(token, "test", function (err, decoded) {
     if (err)
@@ -23,7 +19,7 @@ function verifyToken(req, res, next) {
         .send({ auth: false, message: "Failed to authenticate token." });
 
     // if everything good, save to request for use in other routes
-    console.log("test",decoded._id);
+    console.log("test", decoded._id);
     req.userId = decoded._id;
     console.log("verify");
     next();
@@ -44,9 +40,7 @@ function verifyAdmin(req, res, next) {
         .status(500)
         .send({ auth: false, message: "Failed to authenticate token." });
 
-
-    
-    console.log("test",decoded.Role);
+    console.log("test", decoded.Role);
     //if admin, save to request for use in other routes
     if (decoded.Role == "Admin") {
       req.userId = decoded._id;
@@ -59,31 +53,28 @@ function verifyAdmin(req, res, next) {
 
 //host auth
 function verifyHost(req, res, next) {
-    var token = req.headers["authorization"];
-    if (!token)
-        return res.status(403).send({ auth: false, message: "No token provided." });
+  var token = req.headers["authorization"];
+  if (!token)
+    return res.status(403).send({ auth: false, message: "No token provided." });
 
-    jwt.verify(token, "test", function (err, decoded) {
-        if (err)
-            return res
-                .status(500)
-                .send({ auth: false, message: "Failed to authenticate token." });
+  jwt.verify(token, "test", function (err, decoded) {
+    if (err)
+      return res
+        .status(500)
+        .send({ auth: false, message: "Failed to authenticate token." });
 
-        //if host, save to request for use in other routes
-        if (decoded.Role === "Host") {
-            req.userId = decoded._id;
-            next();
-        }
-        else {
-            res.status(403).send({ auth: false, message: "No token provided." });
-        }
-    });
+    //if host, save to request for use in other routes
+    if (decoded.Role === "Host") {
+      req.userId = decoded._id;
+      next();
+    } else {
+      res.status(403).send({ auth: false, message: "No token provided." });
+    }
+  });
 }
-
 
 module.exports = {
-    verifyToken,
-    verifyAdmin,
-    verifyHost
-}
-
+  verifyToken,
+  verifyAdmin,
+  verifyHost,
+};

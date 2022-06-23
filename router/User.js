@@ -2,13 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { User } = require("../models/User");
 const { verifyToken } = require("../auth/auth");
+const bcrypt = require("bcrypt");
 
 // @route   POST api/users
 // @desc    Create a user
 // @access  Public
 router.post("/register", (req, res) => {
   const newUser = req.body;
-  console.log(newUser.email);
+  console.log(newUser);
   let email = newUser.email;
   try {
     //if user is already registered
@@ -20,6 +21,7 @@ router.post("/register", (req, res) => {
           });
         } else {
           let user = await User.register(newUser);
+          console.log("user", user);
           const token = user.generateAuthToken();
           res.status(200).json({
             token,
@@ -116,11 +118,18 @@ router.get("/get", verifyToken, (req, res) => {
 
 //request to be a host
 router.post("/requestHost", verifyToken, (req, res) => {
+  console.log("requestHost", req.headers);
   User.findById(req.userId)
     .then((user) => {
-      user.requestHost = true;
-      user.save();
-      res.json(user);
+      user.requestHost.is_request = true;
+      user.requestHost.user_id = req.userId;
+      user.requestHost.firstName = user.firstName;
+      user.requestHost.lastName = user.lastName;
+      user.requestHost.request_status = "Pending";
+
+      user.save().then((user) => {
+        res.json(user);
+      });
     })
     .catch((err) => {
       res.status(400).json({ message: err.message });

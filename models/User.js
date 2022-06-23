@@ -34,9 +34,28 @@ const UserSchema = new Schema(
       default: "User",
     },
     requestHost: {
-      type: Boolean,
-      required: true,
-      default: false,
+      is_request: {
+        type: Boolean,
+        default: false,
+      },
+
+      user_id: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      firstName: {
+        type: String,
+      },
+      lastName: {
+        type: String,
+      },
+
+      request_status: {
+        type: String,
+        required: true,
+        enum: ["Pending", "Accepted", "Rejected", "Cancelled", "Not Sent"],
+        default: "Not Sent",
+      },
     },
   },
   {

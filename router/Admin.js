@@ -9,7 +9,7 @@ router.post("/add", verifyAdmin, (req, res) => {
   const newUser = req.body;
   console.log(newUser);
   try {
-   //if user is already registered
+    //if user is already registered
     User.findOne({ email: newUser.email })
       .then(async (user) => {
         if (user) {
@@ -29,10 +29,7 @@ router.post("/add", verifyAdmin, (req, res) => {
         res.status(500).json({
           error: err.message,
         });
-      }
-      );
-
-
+      });
   } catch (err) {
     res.status(500).json({
       error: err.message,
@@ -42,6 +39,7 @@ router.post("/add", verifyAdmin, (req, res) => {
 
 //get all users
 router.get("/getall", verifyAdmin, (req, res) => {
+  console.log("get all users");
   User.find()
     .then((users) => res.json(users))
     .catch((err) => res.status(400).json({ message: err.message }));
@@ -63,22 +61,42 @@ router.put("/update/:id", verifyAdmin, (req, res) => {
 
 //get all user requests
 router.get("/getallrequests", verifyAdmin, (req, res) => {
-  User.find({ requestHost: true })
-    .then((users) => res.json(users))
+  User.find({})
+    .then((users) => {
+      let requests = [];
+      users.forEach((user) => {
+        if (user.requestHost.is_request === true) {
+          requests.push(user.requestHost);
+        }
+      });
+
+      res.json(requests);
+    })
     .catch((err) => res.status(400).json({ message: err.message }));
 });
 
 //accept a user request
 router.patch("/accept/:id", verifyAdmin, (req, res) => {
-  User.findByIdAndUpdate(req.params.id, { requestHost: false, Role: "Host" })
-    .then((user) => res.json(user))
+  let user = User.findById(req.params.id);
+  user
+    .then((user) => {
+      user.Role = "Host";
+      user.requestHost.request_status = "Accepted";
+      user.save();
+      res.json(user);
+    })
     .catch((err) => res.status(400).json({ message: err.message }));
 });
 
 //reject a user request
 router.patch("/reject/:id", verifyAdmin, (req, res) => {
-  User.findByIdAndUpdate(req.params.id, { requestHost: false, Role: "User" })
-    .then((user) => res.json(user))
+  let user = User.findById(req.params.id);
+  user
+    .then((user) => {
+      user.requestHost.request_status = "Rejected";
+      user.save();
+      res.json(user);
+    })
     .catch((err) => res.status(400).json({ message: err.message }));
 });
 
@@ -92,14 +110,16 @@ router.delete("/delete/:id", verifyAdmin, (req, res) => {
 
 //create a new department
 router.post("/department", verifyAdmin, (req, res) => {
-  const newDepartment = new Department({
-    name: req.body.name,
-    description: req.body.description,
-  });
-  newDepartment
-    .save()
-    .then(() => res.json({ message: "Department created successfully" }))
-    .catch((err) => res.status(400).json({ message: err.message }));
+  try {
+    const newDepartment = req.body;
+    Department.create(newDepartment)
+      .then((department) => res.json(department))
+      .catch((err) => res.status(400).json({ message: err.message }));
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+    });
+  }
 });
 
 //get all departments

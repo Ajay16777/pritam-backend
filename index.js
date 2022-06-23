@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
 mongooes
-  .connect("mongodb://localhost:27017/pritam", {
+  .connect("mongodb+srv://ajay16:123ewq@cluster0.pt7bkbv.mongodb.net/?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })

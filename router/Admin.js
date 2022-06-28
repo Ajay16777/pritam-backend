@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const { User } = require("../models/User");
 const Department = require("../models/departments");
-const { verifyAdmin } = require("../auth/auth");
+const { verifyAdmin, verifyToken } = require("../auth/auth");
 
 //add a new user
 router.post("/add", verifyAdmin, (req, res) => {
   const newUser = req.body;
-  console.log(newUser);
+  console.log("new user ---- ---- ",newUser);
   try {
     //if user is already registered
     User.findOne({ email: newUser.email })
@@ -38,7 +38,7 @@ router.post("/add", verifyAdmin, (req, res) => {
 });
 
 //get all users
-router.get("/getall", verifyAdmin, (req, res) => {
+router.get("/getall", verifyToken, (req, res) => {
   console.log("get all users");
   User.find()
     .then((users) => res.json(users))
@@ -102,10 +102,14 @@ router.patch("/reject/:id", verifyAdmin, (req, res) => {
 
 //delete a user
 router.delete("/delete/:id", verifyAdmin, (req, res) => {
-  User.findById(req.params.id)
-    .then((user) => user.remove())
-    .then(() => res.json({ message: "User deleted successfully" }))
+  console.log("delete user");
+  User.findByIdAndDelete(req.params.id)
+    .then((user) => res.json(user))
     .catch((err) => res.status(400).json({ message: err.message }));
+
+  
+
+
 });
 
 //create a new department

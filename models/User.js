@@ -27,6 +27,18 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
+    address: {
+      type: String,
+      required: true,
+    },
+    number: {
+      type: String,
+      required: true,
+    },
+    department: {
+      type: String,
+    },
+
     Role: {
       type: String,
       required: true,
@@ -49,7 +61,6 @@ const UserSchema = new Schema(
       lastName: {
         type: String,
       },
-
       request_status: {
         type: String,
         required: true,
